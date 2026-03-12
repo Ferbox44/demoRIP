@@ -1,0 +1,111 @@
+<div class="page-wrapper">
+  <div class="page-content">
+
+    <div class="breadcrumb">
+      <a routerLink="/inventario">Inventario</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Trazabilidad NFC</span>
+    </div>
+
+    @if (product(); as p) {
+
+      <!-- Product Header Card -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="product-header-inner">
+          <div class="product-image-box">
+            <span style="font-size:48px;opacity:0.4">📦</span>
+            <span class="text-xs text-muted" style="margin-top:8px">Sin imagen</span>
+          </div>
+          <div style="flex:1">
+            <h2 style="font-size:22px;font-weight:700;margin-bottom:8px">{{ p.description }}</h2>
+            <div class="flex gap-md flex-wrap items-center" style="margin-bottom:12px">
+              <span class="nfc-tag" style="font-size:13px">📶 {{ p.nfcCode }}</span>
+              <span class="badge" [class]="badgeClass(p.status)" style="font-size:13px;padding:5px 12px">{{ p.status }}</span>
+            </div>
+            <div class="flex gap-md flex-wrap">
+              <span class="detail-chip">📍 {{ p.branch }}</span>
+              <span class="detail-chip">🗂️ {{ p.type }}</span>
+              <span class="detail-chip">🏭 {{ p.supplier }}</span>
+              <span class="text-xs text-muted">Última actualización: {{ p.lastUpdated }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two columns -->
+      <div class="traza-cols">
+
+        <!-- LEFT: Timeline -->
+        <div class="card traza-left">
+          <div class="card-title" style="margin-bottom:20px">📜 Historial del Producto</div>
+          <div class="timeline">
+            @for (event of p.history; track event.id) {
+              <div class="timeline-item">
+                <div class="timeline-dot" [style.background]="timelineDotColor(event.status)">
+                  <div class="timeline-dot-inner" [style.color]="timelineDotColor(event.status)"></div>
+                </div>
+                <div class="timeline-content">
+                  <p class="timeline-date">{{ event.date }}</p>
+                  <p class="timeline-action">{{ event.action }}</p>
+                  <p class="timeline-desc">{{ event.description }}</p>
+                  <p class="timeline-user">👤 {{ event.user }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- RIGHT: Details + Docs -->
+        <div class="traza-right">
+          <div class="card" style="margin-bottom:20px">
+            <div class="card-title" style="margin-bottom:16px">🏷️ Detalles del Producto</div>
+            <div class="detail-list">
+              <div class="detail-row"><span>Código NFC</span><span class="mono text-primary">{{ p.nfcCode }}</span></div>
+              <div class="detail-row"><span>Tipo</span><strong>{{ p.type }}</strong></div>
+              <div class="detail-row"><span>Material</span><strong>{{ p.material }}</strong></div>
+              <div class="detail-row"><span>Modelo</span><strong>{{ p.model }}</strong></div>
+              <div class="detail-row"><span>Proveedor</span><strong>{{ p.supplier }}</strong></div>
+              <div class="detail-row"><span>Tamaño</span><strong>{{ p.size }}</strong></div>
+              @if (canSeeCost()) {
+                <div class="detail-row"><span>Precio Costo</span><strong class="text-secondary">${{ p.costPrice.toLocaleString('es-MX') }}</strong></div>
+              }
+              <div class="detail-row"><span>Precio Venta</span><strong class="text-primary fw-700">${{ p.salePrice.toLocaleString('es-MX') }}</strong></div>
+              <div class="detail-row"><span>Estado Actual</span><span class="badge badge-sm" [class]="badgeClass(p.status)">{{ p.status }}</span></div>
+              <div class="detail-row"><span>Ubicación</span><strong>{{ p.branch }}</strong></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">📎 Documentos Asociados</div>
+            <div class="doc-item">
+              <span style="font-size:24px">🖼️</span>
+              <div style="flex:1">
+                <p class="fw-600 text-sm">Foto_entrada_{{ p.nfcCode }}.jpg</p>
+                <p class="text-xs text-muted">Registrado al ingreso · 21 Ene 2026</p>
+              </div>
+              <button class="btn btn-ghost btn-sm">⬇️</button>
+            </div>
+            <div class="doc-item">
+              <span style="font-size:24px">📄</span>
+              <div style="flex:1">
+                <p class="fw-600 text-sm">Orden_entrada_{{ p.nfcCode }}.pdf</p>
+                <p class="text-xs text-muted">Orden de recepción · 20 Ene 2026</p>
+              </div>
+              <button class="btn btn-ghost btn-sm">⬇️</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    } @else {
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <p class="empty-state-title">Producto no encontrado</p>
+        <p class="empty-state-desc">No se encontró un producto con el ID "{{ id }}"</p>
+        <a routerLink="/inventario" class="btn btn-primary" style="margin-top:16px">← Volver al Inventario</a>
+      </div>
+    }
+
+  </div>
+</div>

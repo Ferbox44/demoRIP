@@ -1,0 +1,235 @@
+<div class="page-wrapper">
+  <div class="page-content">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a routerLink="/dashboard">Inicio</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Registrar Salida</span>
+    </div>
+
+    @if (saved()) {
+      <div class="card" style="text-align:center;padding:60px">
+        <div style="font-size:64px;margin-bottom:16px">✅</div>
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;color:var(--green)">Salida Registrada</h2>
+        <p class="text-secondary" style="margin-bottom:28px">El producto fue entregado correctamente. NFC actualizado.</p>
+        <button class="btn btn-primary" (click)="reset()">Registrar otra salida</button>
+      </div>
+    } @else {
+      <h1 class="page-title" style="margin-bottom:24px">Registrar Salida</h1>
+
+      <div class="salidas-layout">
+
+        <!-- LEFT: Client & Product Selection -->
+        <div class="salidas-left">
+
+          <!-- === CLIENT SELECTION === -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">👤 Seleccionar Cliente</div>
+              <div class="mode-toggle">
+                <button class="btn btn-xs" [class.btn-primary]="clientMode()==='list'" [class.btn-ghost]="clientMode()!=='list'" (click)="clientMode.set('list')">Lista</button>
+                <button class="btn btn-xs" [class.btn-primary]="clientMode()==='search'" [class.btn-ghost]="clientMode()!=='search'" (click)="clientMode.set('search')">Buscar</button>
+              </div>
+            </div>
+
+            @if (clientMode() === 'search') {
+              <div class="search-wrap" style="margin-bottom:16px">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="form-input" placeholder="Nombre o folio del contrato..."
+                       [value]="clientSearch()" (input)="clientSearch.set($any($event.target).value)">
+              </div>
+            }
+
+            <div class="client-list">
+              @for (c of filteredClients(); track c.id) {
+                <div class="client-option" [class.selected]="selectedClient()?.id === c.id" (click)="selectClient(c)">
+                  <div class="client-avatar">{{ c.name[0] }}</div>
+                  <div style="flex:1;min-width:0">
+                    <p class="fw-600 text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</p>
+                    <p class="text-xs text-muted">{{ c.phone }} · {{ c.folio }}</p>
+                  </div>
+                  <span class="badge badge-sm" [class]="contractBadge(c)">{{ c.contractType }}</span>
+                  @if (selectedClient()?.id === c.id) { <span style="color:var(--primary);font-size:18px">✓</span> }
+                </div>
+              }
+              @if (filteredClients().length === 0) {
+                <p class="text-muted text-sm" style="padding:16px;text-align:center">Sin resultados para "{{ clientSearch() }}"</p>
+              }
+            </div>
+          </div>
+
+          <!-- === PRODUCT SELECTION === -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📦 Seleccionar Producto</div>
+              <span class="badge badge-disponible badge-sm">{{ availableProducts().length }} disponibles</span>
+            </div>
+            <div class="search-wrap" style="margin-bottom:16px">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="form-input" placeholder="Buscar por descripción o NFC..."
+                     [value]="productSearch()" (input)="productSearch.set($any($event.target).value)">
+            </div>
+            <div class="client-list">
+              @for (p of filteredProducts(); track p.id) {
+                <div class="client-option" [class.selected]="selectedProduct()?.id === p.id" (click)="selectProduct(p)">
+                  <div class="client-avatar" style="background:var(--primary-mid)">📦</div>
+                  <div style="flex:1;min-width:0">
+                    <p class="fw-600 text-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.description }}</p>
+                    <p class="text-xs text-muted"><span class="mono">{{ p.nfcCode }}</span> · {{ p.size }}</p>
+                  </div>
+                  <span class="fw-600 text-primary text-sm">${{ p.salePrice.toLocaleString('es-MX') }}</span>
+                  @if (selectedProduct()?.id === p.id) { <span style="color:var(--primary);font-size:18px">✓</span> }
+                </div>
+              }
+              @if (filteredProducts().length === 0) {
+                <p class="text-muted text-sm" style="padding:16px;text-align:center">Sin productos disponibles</p>
+              }
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Service Type + Confirm -->
+        <div class="salidas-right">
+
+          <!-- Summary of selections -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">📋 Resumen</div>
+            @if (selectedClient()) {
+              <div class="summary-item">
+                <span class="text-secondary text-sm">Cliente</span>
+                <div>
+                  <p class="fw-600">{{ selectedClient()!.name }}</p>
+                  <span class="badge badge-sm" [class]="contractBadge(selectedClient()!)">{{ selectedClient()!.contractType }}</span>
+                </div>
+              </div>
+            } @else {
+              <p class="text-muted text-sm" style="margin-bottom:12px">↙ Selecciona un cliente</p>
+            }
+            @if (selectedProduct()) {
+              <div class="summary-item">
+                <span class="text-secondary text-sm">Producto</span>
+                <div>
+                  <p class="fw-600">{{ selectedProduct()!.description }}</p>
+                  <p class="text-xs text-muted mono">{{ selectedProduct()!.nfcCode }}</p>
+                </div>
+              </div>
+              <div class="stock-confirm">
+                <span style="color:var(--green)">✅</span>
+                Stock disponible en CEDIS Pino Suárez
+              </div>
+            } @else {
+              <p class="text-muted text-sm">↙ Selecciona un producto</p>
+            }
+          </div>
+
+          <!-- Service Type Selection -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">⚙️ Tipo de Servicio</div>
+            <div style="display:flex;gap:12px">
+              <div class="service-card renta" [class.selected]="serviceType()==='renta'" (click)="serviceType.set('renta')">
+                <div class="service-card-icon">🔄</div>
+                <div class="service-card-title">RENTA</div>
+                <div class="service-card-desc">Servicio de cremación — el ataúd regresa al inventario</div>
+              </div>
+              <div class="service-card venta" [class.selected]="serviceType()==='venta'" (click)="serviceType.set('venta')">
+                <div class="service-card-icon">✅</div>
+                <div class="service-card-title">VENTA DEFINITIVA</div>
+                <div class="service-card-desc">Baja definitiva del inventario</div>
+              </div>
+            </div>
+
+            @if (serviceType() === 'renta') {
+              <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Ubicación del Servicio</label>
+                  <input type="text" class="form-input" style="height:40px" placeholder="Dirección del servicio..." [value]="rentaLocation()" (input)="rentaLocation.set($any($event.target).value)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Fecha Estimada de Retorno</label>
+                  <input type="date" class="form-input" style="height:40px" [value]="rentaDate()" (input)="rentaDate.set($any($event.target).value)">
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- NFC + Confirm Button -->
+          <div class="card">
+            <button class="btn btn-secondary btn-full" style="margin-bottom:12px" [disabled]="!canConfirm()">
+              📶 Grabar datos en chip NFC
+            </button>
+            <button class="btn btn-primary btn-full" [disabled]="!canConfirm()" (click)="showModal.set(true)">
+              Confirmar Salida
+            </button>
+          </div>
+
+        </div>
+      </div>
+    }
+
+    <!-- History Section -->
+    <div class="card" style="margin-top:24px">
+      <div class="card-header">
+        <div class="card-title">📋 Historial de Salidas</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Producto</th>
+              <th>NFC</th>
+              <th>Tipo</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of history(); track r.id) {
+              <tr>
+                <td class="text-secondary text-sm">{{ r.date }}</td>
+                <td class="fw-600">{{ r.client }}</td>
+                <td>{{ r.product }}</td>
+                <td><span class="nfc-tag">📶 {{ r.nfcCode }}</span></td>
+                <td><span class="badge" [class]="r.serviceType === 'Renta' ? 'badge-en-renta' : 'badge-vendido'">{{ r.serviceType }}</span></td>
+                <td class="currency fw-600 text-primary">${{ r.price.toLocaleString('es-MX') }}</td>
+              </tr>
+            }
+            @if (history().length === 0) {
+              <tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">Sin salidas registradas</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    @if (showModal()) {
+      <div class="overlay" (click)="showModal.set(false)"></div>
+      <div class="modal-wrapper">
+        <div class="modal">
+          <div class="modal-header">
+            <h3 class="section-title">Confirmar Salida de Producto</h3>
+            <button class="close-btn" (click)="showModal.set(false)">✕</button>
+          </div>
+          <div class="modal-body">
+            <table class="summary-table">
+              <tr><td>Cliente</td><td>{{ selectedClient()?.name }}</td></tr>
+              <tr><td>Contrato</td><td>{{ selectedClient()?.contractType }}</td></tr>
+              <tr><td>Producto</td><td>{{ selectedProduct()?.description }}</td></tr>
+              <tr><td>NFC</td><td class="mono">{{ selectedProduct()?.nfcCode }}</td></tr>
+              <tr><td>Tipo</td><td>{{ serviceType() === 'renta' ? 'Renta (Cremación)' : 'Venta Definitiva' }}</td></tr>
+              <tr><td>Precio</td><td class="text-primary fw-600">${{ (selectedProduct()?.salePrice ?? 0).toLocaleString('es-MX') }}</td></tr>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" (click)="showModal.set(false)">Cancelar</button>
+            <button class="btn btn-primary" (click)="confirm()">✅ Confirmar</button>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

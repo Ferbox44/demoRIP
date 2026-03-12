@@ -1,0 +1,4 @@
+.mb-md { margin-bottom: 16px; }
+.mb-lg { margin-bottom: 24px; }
+.mt-sm { margin-top: 4px; }
+.action-chip { background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }

@@ -1,0 +1,153 @@
+<div class="page-wrapper">
+  <div class="page-content">
+
+    <div class="flex items-center justify-between mb-lg">
+      <div>
+        <h1 class="page-title">Control de Equipos de Velación</h1>
+        <p class="text-secondary text-sm mt-sm">CEDIS Pino Suárez — gestión de equipos para servicios fúnebres</p>
+      </div>
+      <button class="btn btn-primary" (click)="openDrawer()">📤 Nueva Orden de Salida</button>
+    </div>
+
+    @if (showSaved()) {
+      <div class="save-toast">✅ Orden de salida registrada exitosamente</div>
+    }
+
+    <!-- Equipment Table -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border)">
+        <div class="card-title">🏮 Inventario de Equipos</div>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Equipo</th>
+            <th>Total Unidades</th>
+            <th>En Servicio</th>
+            <th>Disponibles</th>
+            <th>Última Salida</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (g of equipment(); track g.category) {
+            <tr>
+              <td>
+                <div class="flex items-center gap-sm">
+                  <span style="font-size:20px">{{ g.icon }}</span>
+                  <span class="fw-600">{{ g.category }}</span>
+                </div>
+              </td>
+              <td class="fw-600">{{ g.total }}</td>
+              <td><span class="badge badge-en-renta badge-sm"><span class="badge-count">{{ g.inService }}</span></span></td>
+              <td><span class="badge badge-disponible badge-sm"><span class="badge-count">{{ g.available }}</span></span></td>
+              <td class="text-secondary text-sm">{{ g.lastExit }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total Summary -->
+    <div class="totals-grid">
+      @for (g of equipment(); track g.category) {
+        <div class="total-chip">
+          <span style="font-size:18px">{{ g.icon }}</span>
+          <div>
+            <p class="text-xs text-muted">{{ g.category }}</p>
+            <p class="fw-700" style="font-size:15px">{{ g.available }}<span class="text-muted fw-400"> / {{ g.total }}</span></p>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
+
+<!-- === ORDER DRAWER === -->
+@if (showDrawer()) {
+  <div class="drawer-overlay" (click)="closeDrawer()"></div>
+  <div class="drawer">
+    <div class="drawer-header">
+      <div>
+        <h3 class="section-title">Nueva Orden de Salida de Equipos</h3>
+        <p class="text-xs text-muted">Selecciona las cantidades para cada equipo</p>
+      </div>
+      <button class="close-btn" (click)="closeDrawer()">✕</button>
+    </div>
+
+    <div class="drawer-body">
+
+      <!-- EQUIPMENT QUANTITIES -->
+      <div>
+        <p class="label-sm" style="margin-bottom:12px">Equipos a incluir en la orden</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          @for (item of orderItems(); track item.category) {
+            <div class="order-item-row">
+              <span style="font-size:18px">{{ item.icon }}</span>
+              <span class="fw-600 text-sm" style="flex:1">{{ item.category }}</span>
+              <span class="text-xs text-muted" style="margin-right:8px">máx {{ item.max }}</span>
+              <div class="qty-stepper">
+                <button class="qty-btn" (click)="setQty(item.category, -1)" [disabled]="item.qty === 0">−</button>
+                <span class="qty-value">{{ item.qty }}</span>
+                <button class="qty-btn" (click)="setQty(item.category, 1)" [disabled]="item.qty >= item.max">+</button>
+              </div>
+            </div>
+          }
+        </div>
+        @if (totalOrderItems() > 0) {
+          <div class="total-summary-box" style="margin-top:12px">
+            <span class="fw-600">Total de unidades en la orden: <strong>{{ totalOrderItems() }}</strong></span>
+          </div>
+        }
+      </div>
+
+      <!-- CLIENT SELECTION -->
+      <div>
+        <p class="label-sm" style="margin-bottom:10px">Cliente / Servicio</p>
+        <div class="mode-toggle" style="margin-bottom:10px">
+          <button class="btn btn-xs" [class.btn-primary]="clientMode()==='list'" [class.btn-ghost]="clientMode()!=='list'" (click)="clientMode.set('list')">Lista</button>
+          <button class="btn btn-xs" [class.btn-primary]="clientMode()==='search'" [class.btn-ghost]="clientMode()!=='search'" (click)="clientMode.set('search')">Buscar</button>
+        </div>
+        @if (clientMode() === 'search') {
+          <input type="text" class="form-input" style="height:38px;margin-bottom:8px" placeholder="Buscar cliente..." [value]="clientSearch()" (input)="clientSearch.set($any($event.target).value)">
+        }
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto">
+          @for (c of filteredClients(); track c.id) {
+            <div class="client-option" [class.selected]="selectedClient()?.id === c.id" (click)="selectedClient.set(c)">
+              <div class="client-avatar" style="width:28px;height:28px;font-size:11px">{{ c.name[0] }}</div>
+              <div style="flex:1;min-width:0">
+                <p class="text-sm fw-600" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</p>
+              </div>
+              @if (selectedClient()?.id === c.id) { <span style="color:var(--primary)">✓</span> }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- SERVICE INFO -->
+      <div class="form-group">
+        <label class="form-label">Ubicación del Servicio <span class="req">*</span></label>
+        <input type="text" class="form-input" placeholder="Dirección, sala, domicilio..." [value]="location()" (input)="location.set($any($event.target).value)">
+      </div>
+
+      <div class="grid-2" style="gap:12px">
+        <div class="form-group">
+          <label class="form-label">Responsable</label>
+          <input type="text" class="form-input" placeholder="Nombre del responsable" [value]="responsible()" (input)="responsible.set($any($event.target).value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chofer / Transporte</label>
+          <input type="text" class="form-input" placeholder="Nombre del chofer" [value]="driver()" (input)="driver.set($any($event.target).value)">
+        </div>
+      </div>
+
+    </div><!-- /drawer-body -->
+
+    <div class="drawer-footer">
+      <button class="btn btn-ghost flex-1" (click)="closeDrawer()">Cancelar</button>
+      <button class="btn btn-primary flex-1" [disabled]="!canRegister()" (click)="confirmOrder()">
+        📤 Generar Orden de Salida
+      </button>
+    </div>
+  </div>
+}

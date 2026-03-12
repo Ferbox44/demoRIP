@@ -1,0 +1,132 @@
+.login-page {
+  min-height: 100vh;
+  background: #F5F0E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 480px;
+  padding: 40px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.app-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: #8B1A2B;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.app-subtitle {
+  font-size: 13px;
+  color: #999999;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-icon-wrap {
+  position: relative;
+}
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.input-icon-wrap .form-input {
+  padding-left: 40px;
+}
+.toggle-pw {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+  padding: 4px;
+}
+.toggle-pw:hover { opacity: 1; }
+
+.login-btn {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.login-error {
+  background: #FFEBEE;
+  color: #C62828;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-left: 3px solid #C62828;
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Test Accounts Panel */
+.test-accounts-panel {
+  background: #FAFAF8;
+  border: 1px solid #E5DDD0;
+  border-radius: 10px;
+  padding: 16px;
+}
+.test-accounts-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.test-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.test-account-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s;
+  gap: 16px;
+}
+.test-account-row:hover { background: rgba(139,26,43,0.05); }
+.ta-role-col { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ta-role { font-size: 11px; font-weight: 700; color: #8B1A2B; text-transform: uppercase; letter-spacing: 0.04em; }
+.ta-name { font-size: 12px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ta-creds-col { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.ta-email { font-size: 11px; font-family: monospace; color: #555; }
+.ta-pass  { font-size: 11px; font-family: monospace; color: #999; }

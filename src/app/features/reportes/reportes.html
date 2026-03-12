@@ -1,0 +1,95 @@
+<div class="page-wrapper">
+  <div class="page-content">
+
+    <div class="flex items-center justify-between mb-lg">
+      <div>
+        <h1 class="page-title">Reportes y Análisis</h1>
+        <p class="text-secondary text-sm mt-sm">Datos consolidados — CEDIS Pino Suárez</p>
+      </div>
+      <div class="flex gap-sm">
+        <select class="form-input" style="height:38px;max-width:180px">
+          <option>Últimos 6 meses</option>
+          <option>Último año</option>
+          <option>Este mes</option>
+        </select>
+        <button class="btn btn-secondary btn-sm">📥 Exportar Excel</button>
+        <button class="btn btn-primary btn-sm">📄 Generar Reporte PDF</button>
+      </div>
+    </div>
+
+    <!-- Section 1: Financial KPIs -->
+    <div class="section-title mb-md">💰 Resumen Financiero</div>
+    <div class="grid-2" style="margin-bottom:28px">
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">Ingresos Totales (6 meses)</p>
+          <p class="kpi-value is-currency">318.000</p>
+          <p class="kpi-footer">Oct 2025 — Mar 2026</p>
+        </div>
+        <div class="kpi-icon" style="background:#E8F5E9;color:var(--green)">💰</div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">Rentas Activas</p>
+          <p class="kpi-value" style="color:var(--amber)">2</p>
+          <p class="kpi-footer">Servicios en curso</p>
+        </div>
+        <div class="kpi-icon" style="background:var(--amber-bg);color:var(--amber)">🔄</div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="card" style="margin-bottom:28px">
+      <div class="card-title" style="margin-bottom:20px">📊 Ventas por Mes (MXN)</div>
+      <div class="bar-chart">
+        @for (d of monthlyData; track d.month) {
+          <div class="bar-col">
+            <span class="bar-value">${{ (d.value/1000).toFixed(0) }}k</span>
+            <div class="bar" [style.height.%]="d.pct"></div>
+            <span class="bar-label">{{ d.month }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Section 2: By Branch -->
+    <div class="section-title mb-md" style="margin-top:8px">🏢 Inventario por Sucursal</div>
+    <div class="card" style="margin-bottom:28px">
+      @for (b of branchData; track b.name) {
+        <div class="hbar-row">
+          <span class="hbar-label">{{ b.name }}</span>
+          <div class="hbar-track">
+            <div class="hbar-fill" [style.width.%]="b.pct"></div>
+          </div>
+          <span class="hbar-val">{{ b.count }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Section 3: Recent Movements -->
+    <div class="section-title mb-md" style="margin-top:8px">📋 Movimientos Recientes</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Acción</th>
+            <th>Producto / Descripción</th>
+            <th>Fecha y Hora</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of recentMovements; track $index) {
+            <tr>
+              <td class="fw-600 text-sm">👤 {{ m.user }}</td>
+              <td><span class="action-chip">{{ m.action }}</span></td>
+              <td class="text-secondary text-sm">{{ m.product }}</td>
+              <td class="text-muted text-xs">{{ m.time }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

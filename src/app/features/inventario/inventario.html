@@ -1,0 +1,181 @@
+<div class="page-wrapper">
+
+  @if (isReadOnly()) {
+    <div class="permission-banner">
+      <span>⚠️</span>
+      Modo Lectura — Solo consulta. No se pueden realizar modificaciones.
+    </div>
+  }
+
+  <div class="page-content">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-lg">
+      <div>
+        <h1 class="page-title">Inventario</h1>
+        <p class="text-secondary text-sm mt-sm">CEDIS Pino Suárez — {{ allProducts().length }} productos registrados</p>
+      </div>
+      @if (!isReadOnly()) {
+        <div class="flex gap-sm">
+          <button class="btn btn-secondary btn-sm">📥 Exportar Excel</button>
+          <button class="btn btn-secondary btn-sm">📄 Exportar PDF</button>
+        </div>
+      } @else {
+        <div class="flex gap-sm">
+          <button class="btn btn-secondary btn-sm">📥 Exportar Excel</button>
+          <button class="btn btn-secondary btn-sm">📄 Exportar PDF</button>
+        </div>
+      }
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <div class="tab-item" [class.active]="activeTab() === 'lista'" (click)="activeTab.set('lista')">📋 Lista de Inventario</div>
+      <div class="tab-item" [class.active]="activeTab() === 'real'"  (click)="activeTab.set('real')">📊 Inventario Real</div>
+    </div>
+
+    <!-- === LISTA TAB === -->
+    @if (activeTab() === 'lista') {
+      <!-- Filters -->
+      <div class="card" style="padding:0; overflow:hidden; margin-bottom:24px">
+        <div class="filter-bar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="form-input" placeholder="Buscar por descripción, NFC, proveedor..."
+                   [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)">
+          </div>
+          <select class="form-input" style="height:40px;max-width:180px"
+                  [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
+            <option value="">Todos los estados</option>
+            @for (s of statuses; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+          <select class="form-input" style="height:40px;max-width:150px"
+                  [value]="typeFilter()" (change)="typeFilter.set($any($event.target).value)">
+            <option value="">Todos los tipos</option>
+            @for (t of types; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+          <div style="margin-left:auto;font-size:13px;color:var(--text-muted)">
+            {{ filtered().length }} resultados
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>NFC</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Material</th>
+                <th>Modelo</th>
+                <th>Proveedor</th>
+                <th>Tamaño</th>
+                @if (canSeeCost()) { <th>P. Costo</th> }
+                <th>P. Venta</th>
+                <th>Estado</th>
+                <th>Actualización</th>
+                @if (!isReadOnly()) { <th>Acciones</th> }
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of filtered(); track p.id) {
+                <tr [class.selected]="selectedRow() === p.id" (click)="selectRow(p.id)">
+                  <td><span class="nfc-tag">📶 {{ p.nfcCode }}</span></td>
+                  <td class="text-secondary">{{ p.type }}</td>
+                  <td class="fw-600">{{ p.description }}</td>
+                  <td class="text-secondary text-sm">{{ p.material }}</td>
+                  <td class="text-secondary text-sm">{{ p.model }}</td>
+                  <td class="text-secondary text-sm">{{ p.supplier }}</td>
+                  <td class="text-secondary">{{ p.size }}</td>
+                  @if (canSeeCost()) {
+                    <td class="fw-600">${{ p.costPrice.toLocaleString('es-MX') }}</td>
+                  }
+                  <td class="fw-600 text-primary">${{ p.salePrice.toLocaleString('es-MX') }}</td>
+                  <td><span class="badge" [class]="badgeClass(p.status)">{{ p.status }}</span></td>
+                  <td class="text-muted text-xs">{{ p.lastUpdated }}</td>
+                  @if (!isReadOnly()) {
+                    <td (click)="$event.stopPropagation()">
+                      <a [routerLink]="['/trazabilidad', p.id]" class="btn btn-ghost btn-xs">Ver</a>
+                    </td>
+                  } @else {
+                    <td><span class="lock-icon">🔒</span></td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          @if (filtered().length === 0) {
+            <div class="empty-state">
+              <div class="empty-state-icon">📦</div>
+              <p class="empty-state-title">Sin resultados</p>
+              <p class="empty-state-desc">Prueba con otros filtros de búsqueda.</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- === INVENTARIO REAL TAB === -->
+    @if (activeTab() === 'real') {
+      <div style="display:flex; flex-direction:column; gap:20px">
+
+        <!-- Summary chips -->
+        <div class="real-summary-bar">
+          @for (g of realInventoryGroups(); track g.status) {
+            <div class="real-summary-chip">
+              <span class="badge" [class]="g.badgeClass">{{ g.status }}</span>
+              <span class="real-summary-num">{{ g.count }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Status groups -->
+        @for (group of realInventoryGroups(); track group.status) {
+          <div class="card" style="padding:0;overflow:hidden">
+            <div class="real-group-header" [class]="'group-' + group.status.toLowerCase().replace(' ', '-')">
+              <span class="badge" [class]="group.badgeClass">{{ group.status }}</span>
+              <span class="real-group-count">{{ group.count }} producto{{ group.count !== 1 ? 's' : '' }}</span>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>NFC</th>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Material</th>
+                    <th>Proveedor</th>
+                    <th>Tamaño</th>
+                    <th>P. Venta</th>
+                    <th>Última Act.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (p of group.items; track p.id) {
+                    <tr [routerLink]="['/trazabilidad', p.id]" style="cursor:pointer">
+                      <td><span class="nfc-tag">📶 {{ p.nfcCode }}</span></td>
+                      <td class="text-secondary">{{ p.type }}</td>
+                      <td class="fw-600">{{ p.description }}</td>
+                      <td class="text-secondary text-sm">{{ p.material }}</td>
+                      <td class="text-secondary text-sm">{{ p.supplier }}</td>
+                      <td>{{ p.size }}</td>
+                      <td class="fw-600 text-primary">${{ p.salePrice.toLocaleString('es-MX') }}</td>
+                      <td class="text-muted text-xs">{{ p.lastUpdated }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>

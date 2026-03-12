@@ -1,0 +1,12 @@
+.product-header-inner { display: flex; gap: 24px; align-items: flex-start; }
+.product-image-box { width: 200px; height: 160px; background: var(--bg); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border); }
+.detail-chip { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: var(--text-secondary); }
+.traza-cols { display: flex; gap: 24px; align-items: flex-start; }
+.traza-left  { flex: 0 0 60%; }
+.traza-right { flex: 1; min-width: 260px; display: flex; flex-direction: column; }
+.detail-list { display: flex; flex-direction: column; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 13px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-row span:first-child { color: var(--text-secondary); }
+.doc-item { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+.doc-item:last-child { border-bottom: none; }

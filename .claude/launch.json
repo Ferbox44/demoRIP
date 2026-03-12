@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Inventario Funeraria",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/c/Program Files/nodejs/node_modules/npm/bin/npm-cli.js", "start"],
+      "port": 4200
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+.salidas-layout { display: flex; gap: 24px; align-items: flex-start; }
+.salidas-left  { flex: 0 0 58%; display: flex; flex-direction: column; gap: 24px; }
+.salidas-right { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 280px; }
+.client-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+.mode-toggle { display: flex; gap: 4px; }
+.summary-item { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+.summary-item:last-child { border-bottom: none; }
+.stock-confirm { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--green-bg); border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--green); margin-top: 12px; }

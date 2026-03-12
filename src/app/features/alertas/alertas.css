@@ -1,0 +1,7 @@
+.mb-lg { margin-bottom: 24px; }
+.mt-sm { margin-top: 4px; }
+.alert-row { display: flex; gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--border-light); align-items: flex-start; cursor: pointer; transition: background 0.15s; }
+.alert-row:last-child { border-bottom: none; }
+.alert-row:hover { background: var(--row-hover); }
+.alert-row.unread { background: #FFFBF8; }
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: 6px; }

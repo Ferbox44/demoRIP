@@ -1,0 +1,37 @@
+.real-summary-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+.real-summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg);
+  border-radius: 8px;
+}
+.real-summary-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.real-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--row-alt);
+}
+.real-group-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+.mb-lg { margin-bottom: 24px; }
+.mt-sm { margin-top: 4px; }

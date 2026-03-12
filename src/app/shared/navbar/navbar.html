@@ -1,0 +1,70 @@
+<nav class="navbar">
+  <!-- Top Row -->
+  <div class="navbar-top">
+    <div class="navbar-brand">
+      <span class="brand-icon">⚰</span>
+      <span class="brand-name">Inventario Funeraria</span>
+    </div>
+
+    <div class="navbar-center">
+      <div class="branch-selector">
+        <span class="branch-icon">📍</span>
+        @if (user()?.role === 'CEO') {
+          <select class="branch-select">
+            <option>Todas las Sucursales</option>
+            <option>CEDIS Pino Suárez</option>
+          </select>
+        } @else {
+          <span class="branch-fixed">{{ user()?.branch ?? 'CEDIS Pino Suárez' }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="navbar-right">
+      <button class="nav-icon-btn" routerLink="/alertas" title="Alertas">
+        <span>🔔</span>
+        @if (alertCount() > 0) {
+          <span class="notif-badge">{{ alertCount() }}</span>
+        }
+      </button>
+      <div class="user-chip">
+        <div class="user-avatar">{{ initials(user()?.name ?? 'U') }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ user()?.name }}</span>
+          <span class="user-role">{{ user()?.roleLabel }}</span>
+        </div>
+      </div>
+      <button class="nav-icon-btn logout-btn" (click)="logout()" title="Cerrar sesión">
+        <span>🚪</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Row -->
+  <div class="navbar-tabs">
+    @for (item of navItems(); track item.route) {
+      @if (item.movGroup) {
+        <a class="nav-tab"
+           [routerLink]="item.route"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' }"
+           [class.active-mov]="false">
+          {{ item.label }}
+          @if (item.badge && item.badge > 0) {
+            <span class="tab-badge">{{ item.badge }}</span>
+          }
+        </a>
+      } @else {
+        <a class="nav-tab"
+           [routerLink]="item.route"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+          {{ item.label }}
+          @if (item.badge && item.badge > 0) {
+            <span class="tab-badge">{{ item.badge }}</span>
+          }
+        </a>
+      }
+    }
+  </div>
+</nav>

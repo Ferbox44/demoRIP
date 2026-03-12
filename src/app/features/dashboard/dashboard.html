@@ -1,0 +1,165 @@
+<div class="page-wrapper">
+  <div class="page-content">
+
+    <!-- Greeting -->
+    <div class="greeting-row">
+      <div>
+        <h1 class="greeting-title">Bienvenido, {{ user()?.name?.split(' ')?.[0] }}</h1>
+        @if (isCEO()) {
+          <p class="greeting-sub text-secondary">Resumen consolidado — CEDIS Pino Suárez</p>
+        } @else {
+          <p class="greeting-sub text-secondary">{{ user()?.branch ?? 'CEDIS Pino Suárez' }}</p>
+        }
+      </div>
+      <div class="date-chip">
+        <span>📅</span> 12 de Marzo, 2026
+      </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">Total Productos</p>
+          <p class="kpi-value">{{ counts().total }}</p>
+          <p class="kpi-footer">En CEDIS Pino Suárez</p>
+        </div>
+        <div class="kpi-icon" style="background:#F3E5F5; color:#8B1A2B">📦</div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">Disponibles</p>
+          <p class="kpi-value" style="color:var(--green)">{{ counts().disponible }}</p>
+          <p class="kpi-footer">Listos para servicio</p>
+        </div>
+        <div class="kpi-icon" style="background:var(--green-bg); color:var(--green)">✅</div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">En Renta</p>
+          <p class="kpi-value" style="color:var(--amber)">{{ counts().enRenta }}</p>
+          <p class="kpi-footer">Servicios activos</p>
+        </div>
+        <div class="kpi-icon" style="background:var(--amber-bg); color:var(--amber)">🔄</div>
+      </div>
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">Reservados</p>
+          <p class="kpi-value" style="color:var(--blue-gray)">{{ counts().reservado }}</p>
+          <p class="kpi-footer">Contratos previosorios</p>
+        </div>
+        <div class="kpi-icon" style="background:var(--blue-gray-bg); color:var(--blue-gray)">📋</div>
+      </div>
+
+      @if (canSeeFinancials()) {
+        <div class="kpi-card">
+          <div>
+            <p class="kpi-label">Total Vendidos</p>
+            <p class="kpi-value" style="color:var(--dark-gray)">{{ counts().vendido }}</p>
+            <p class="kpi-footer">Bajas definitivas</p>
+          </div>
+          <div class="kpi-icon" style="background:var(--dark-gray-bg); color:var(--dark-gray)">🏷️</div>
+        </div>
+        <div class="kpi-card">
+          <div>
+            <p class="kpi-label">Ingresos Ventas</p>
+            <p class="kpi-value is-currency" style="font-size:22px">63.500</p>
+            <p class="kpi-footer">MXN este mes</p>
+          </div>
+          <div class="kpi-icon" style="background:#E8F5E9; color:var(--green)">💰</div>
+        </div>
+      }
+
+      <div class="kpi-card">
+        <div>
+          <p class="kpi-label">Dañados</p>
+          <p class="kpi-value" style="color:var(--red)">{{ counts().danado }}</p>
+          <p class="kpi-footer">Requieren atención</p>
+        </div>
+        <div class="kpi-icon" style="background:var(--red-bg); color:var(--red)">⚠️</div>
+      </div>
+    </div>
+
+    <!-- Main Content: Table + Alerts -->
+    <div class="dashboard-cols">
+
+      <!-- Real-time Inventory Table -->
+      <div class="card" style="flex:0 0 65%;">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="live-dot"></span>
+            Inventario en Tiempo Real
+          </div>
+          <a routerLink="/inventario" class="btn btn-ghost btn-sm">Ver todo →</a>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>NFC</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Material</th>
+                <th>Proveedor</th>
+                @if (canSeeFinancials()) { <th>P. Costo</th> }
+                <th>P. Venta</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of recentProducts(); track p.id) {
+                <tr [routerLink]="['/trazabilidad', p.id]" style="cursor:pointer">
+                  <td><span class="nfc-tag">📶 {{ p.nfcCode }}</span></td>
+                  <td class="text-secondary">{{ p.type }}</td>
+                  <td class="fw-600">{{ p.description }}</td>
+                  <td class="text-secondary">{{ p.material }}</td>
+                  <td class="text-secondary text-sm">{{ p.supplier }}</td>
+                  @if (canSeeFinancials()) {
+                    <td class="currency fw-600">${{ p.costPrice.toLocaleString('es-MX') }}</td>
+                  }
+                  <td class="currency fw-600 text-primary">${{ p.salePrice.toLocaleString('es-MX') }}</td>
+                  <td><span class="badge" [class]="badgeClass(p.status)">{{ p.status }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Alerts Panel -->
+      <div class="card" style="flex:1; min-width:280px;">
+        <div class="card-header">
+          <div class="card-title">🔔 Alertas Recientes</div>
+          <a routerLink="/alertas" class="btn btn-ghost btn-sm">Ver todas →</a>
+        </div>
+        @for (a of recentAlerts(); track a.id) {
+          <div class="alert-item">
+            <div class="alert-icon-wrap" [class]="'alert-icon-' + a.type">
+              @switch (a.type) {
+                @case ('warning') { ⚠️ }
+                @case ('error')   { ❌ }
+                @case ('info')    { ℹ️ }
+                @case ('success') { ✅ }
+              }
+            </div>
+            <div class="flex-1">
+              <p class="alert-message" [class.fw-600]="!a.read">{{ a.message }}</p>
+              <p class="alert-detail">{{ a.detail }}</p>
+              <p class="alert-time">{{ a.timestamp }}</p>
+            </div>
+            @if (!a.read) { <span style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:6px"></span> }
+          </div>
+        }
+      </div>
+
+    </div>
+
+    <!-- FAB for EncInventario -->
+    @if (user()?.role === 'EncInventario') {
+      <button class="fab" routerLink="/entradas">
+        + Nueva Entrada
+      </button>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,217 @@
+<div class="page-wrapper">
+  <div class="page-content" style="max-width:860px">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <span (click)="goBack()" style="cursor:pointer">← Volver</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Registrar Nueva Entrada</span>
+    </div>
+
+    @if (saved()) {
+      <!-- Success State -->
+      <div class="card" style="text-align:center;padding:60px">
+        <div style="font-size:64px;margin-bottom:16px">✅</div>
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:8px;color:var(--green)">Entrada Registrada</h2>
+        <p class="text-secondary" style="margin-bottom:28px">El producto <strong>{{ nfcCode() }}</strong> fue dado de alta exitosamente en el sistema.</p>
+        <div class="flex gap-md" style="justify-content:center">
+          <button class="btn btn-secondary" (click)="saved.set(false); currentStep.set(1); nfcCode.set(''); description.set('')">+ Registrar otra entrada</button>
+          <button class="btn btn-primary" (click)="goBack()">Ir al Dashboard</button>
+        </div>
+      </div>
+    } @else {
+
+      <div class="card">
+        <h2 class="section-title" style="margin-bottom:28px">Registrar Nueva Entrada</h2>
+
+        <!-- Stepper -->
+        <div class="stepper">
+          @for (step of steps; track step.n; let last = $last) {
+            <div class="step-item">
+              <div class="step-circle" [class]="stepState(step.n)">
+                @if (stepState(step.n) === 'done') { ✓ }
+                @else { {{ step.n }} }
+              </div>
+              <span class="step-label" [class]="stepState(step.n)">{{ step.label }}</span>
+              @if (!last) { <div class="step-line" [class.done]="stepState(step.n) === 'done'"></div> }
+            </div>
+          }
+        </div>
+
+        <!-- ===== STEP 1: Revisión Orden ===== -->
+        @if (currentStep() === 1) {
+          <div class="step-content">
+            <h3 class="step-heading">Revisión de Orden de Compra</h3>
+            <p class="text-secondary text-sm mb-md">Ingresa los datos de la orden de compra asociada a esta entrada.</p>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Número de Orden <span class="req">*</span></label>
+                <input type="text" class="form-input" placeholder="ej. ORD-0090" [value]="orderNum()" (input)="orderNum.set($any($event.target).value)">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fecha de Orden <span class="req">*</span></label>
+                <input type="date" class="form-input" [value]="orderDate()" (input)="orderDate.set($any($event.target).value)">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Proveedor</label>
+                <select class="form-input" [value]="orderSupplier()" (change)="orderSupplier.set($any($event.target).value)">
+                  <option value="">Seleccionar proveedor...</option>
+                  @for (s of suppliers; track s) { <option [value]="s">{{ s }}</option> }
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notas adicionales</label>
+                <textarea class="form-input" placeholder="Observaciones de la orden..." style="height:48px;padding:12px"></textarea>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ===== STEP 2: Captura Producto ===== -->
+        @if (currentStep() === 2) {
+          <div class="step-content">
+            <h3 class="step-heading">Datos del Producto</h3>
+            <div class="grid-2">
+              <!-- Left -->
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div class="form-group">
+                  <label class="form-label">Código NFC <span class="req">*</span></label>
+                  <div class="input-group">
+                    <input type="text" class="form-input" placeholder="Escanear o ingresar..." [value]="nfcCode()" (input)="nfcCode.set($any($event.target).value)">
+                    <button type="button" class="btn btn-primary btn-sm" style="white-space:nowrap" (click)="simulateNfcScan()">📶 Escanear NFC</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Descripción <span class="req">*</span></label>
+                  <input type="text" class="form-input" placeholder="ej. Ataúd Roble Premium" [value]="description()" (input)="description.set($any($event.target).value)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Modelo</label>
+                  <input type="text" class="form-input" list="model-list" placeholder="Seleccionar o escribir modelo..."
+                         [value]="model()" (input)="onModelChange($any($event.target).value)">
+                  <datalist id="model-list">
+                    @for (m of catalogue; track m.model) { <option [value]="m.model"></option> }
+                  </datalist>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tipo <span class="req">*</span></label>
+                  <select class="form-input" [value]="type()" (change)="type.set($any($event.target).value)">
+                    <option value="">Seleccionar tipo...</option>
+                    @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
+                  </select>
+                </div>
+              </div>
+              <!-- Right -->
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div class="form-group">
+                  <label class="form-label">Proveedor <span class="req">*</span></label>
+                  <select class="form-input" [value]="supplier()" (change)="supplier.set($any($event.target).value)">
+                    <option value="">Seleccionar proveedor...</option>
+                    @for (s of suppliers; track s) { <option [value]="s">{{ s }}</option> }
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Fecha de Recepción <span class="req">*</span></label>
+                  <input type="date" class="form-input" [value]="recepDate()" (input)="recepDate.set($any($event.target).value)">
+                </div>
+                <div class="grid-2" style="gap:12px">
+                  <div class="form-group">
+                    <label class="form-label">Precio Costo</label>
+                    <input type="number" class="form-input" placeholder="0.00" [value]="costPrice()" (input)="costPrice.set($any($event.target).value)">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Precio Venta</label>
+                    <input type="number" class="form-input" placeholder="0.00" [value]="salePrice()" (input)="salePrice.set($any($event.target).value)">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="photo-upload" style="margin-top:24px">
+              <div class="photo-upload-icon">📷</div>
+              <p class="photo-upload-text">Arrastra fotos aquí o haz clic para subir</p>
+              <p class="photo-upload-sub">Mínimo 1 foto requerida — JPG, PNG hasta 10MB</p>
+            </div>
+            <p class="form-hint" style="margin-top:8px"><span class="req">*</span> Campos requeridos</p>
+          </div>
+        }
+
+        <!-- ===== STEP 3: Estado ===== -->
+        @if (currentStep() === 3) {
+          <div class="step-content">
+            <h3 class="step-heading">Estado del Producto</h3>
+            <p class="text-secondary text-sm mb-md">Selecciona la condición en que fue recibido el producto.</p>
+
+            <div class="condition-card good" [class.selected]="condition() === 'BUENO'" (click)="condition.set('BUENO')">
+              <div class="condition-card-icon">✅</div>
+              <div>
+                <p class="condition-card-title">BUENO</p>
+                <p class="condition-card-desc">Producto en condiciones óptimas, listo para inventario activo.</p>
+              </div>
+              @if (condition() === 'BUENO') { <span style="margin-left:auto;font-size:20px">●</span> }
+            </div>
+
+            <div class="condition-card bad" [class.selected]="condition() === 'DAÑADO'" (click)="condition.set('DAÑADO')">
+              <div class="condition-card-icon">❌</div>
+              <div>
+                <p class="condition-card-title">DAÑADO</p>
+                <p class="condition-card-desc">Producto con defectos, requiere devolución a fábrica o reparación.</p>
+              </div>
+              @if (condition() === 'DAÑADO') { <span style="margin-left:auto;font-size:20px">●</span> }
+            </div>
+
+            @if (condition() === 'DAÑADO') {
+              <div class="damage-panel">
+                <div class="form-group">
+                  <label class="form-label">Descripción del daño <span class="req">*</span></label>
+                  <textarea class="form-input" rows="3" placeholder="Describe el daño con detalle: tipo, ubicación, gravedad..." [value]="damageDesc()" (input)="damageDesc.set($any($event.target).value)"></textarea>
+                </div>
+                <label class="checkbox-row">
+                  <input type="checkbox" [checked]="genReturn()" (change)="genReturn.set($any($event.target).checked)">
+                  <span>Generar Orden de Devolución a fábrica</span>
+                </label>
+              </div>
+            }
+
+          </div>
+        }
+
+        <!-- ===== STEP 4: Confirmación ===== -->
+        @if (currentStep() === 4) {
+          <div class="step-content">
+            <h3 class="step-heading">Confirmar Registro</h3>
+            <p class="text-secondary text-sm mb-md">Revisa los datos antes de guardar en el sistema.</p>
+            <div class="confirm-grid">
+              <div class="confirm-row"><span>NFC Code</span><strong class="mono">{{ nfcCode() }}</strong></div>
+              <div class="confirm-row"><span>Descripción</span><strong>{{ description() }}</strong></div>
+              <div class="confirm-row"><span>Tipo</span><strong>{{ type() }}</strong></div>
+              <div class="confirm-row"><span>Proveedor</span><strong>{{ supplier() }}</strong></div>
+              <div class="confirm-row"><span>Fecha Recepción</span><strong>{{ recepDate() }}</strong></div>
+              <div class="confirm-row"><span>Condición</span>
+                @if (condition() === 'BUENO')  { <span class="badge badge-disponible">BUENO</span> }
+                @if (condition() === 'DAÑADO') { <span class="badge badge-dañado">DAÑADO</span> }
+              </div>
+              <div class="confirm-row"><span>Sucursal destino</span><strong>CEDIS Pino Suárez</strong></div>
+            </div>
+          </div>
+        }
+
+        <!-- Navigation Buttons -->
+        <div class="step-nav">
+          @if (currentStep() > 1) {
+            <button class="btn btn-ghost" (click)="prev()">← Anterior</button>
+          } @else {
+            <button class="btn btn-ghost" (click)="goBack()">Cancelar</button>
+          }
+          @if (currentStep() < 4) {
+            <button class="btn btn-primary" [disabled]="!canNext()" (click)="next()">Siguiente →</button>
+          } @else {
+            <button class="btn btn-primary" (click)="confirm()">✅ Confirmar Entrada</button>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

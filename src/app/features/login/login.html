@@ -1,0 +1,79 @@
+<div class="login-page">
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <h1 class="app-name">Inventario Funeraria</h1>
+      <p class="app-subtitle">Sistema de gestión de inventario</p>
+    </div>
+
+    <!-- Form -->
+    <form class="login-form" (ngSubmit)="submit()" #f="ngForm">
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">✉</span>
+          <input
+            type="email"
+            class="form-input"
+            placeholder="nombre@funeraria.com"
+            [value]="email()"
+            (input)="onEmailChange($any($event.target).value)"
+            autocomplete="username"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-icon-wrap">
+          <span class="input-icon">🔒</span>
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            class="form-input"
+            placeholder="Ingrese su contraseña"
+            [value]="password()"
+            (input)="onPasswordChange($any($event.target).value)"
+            autocomplete="current-password"
+          />
+          <button type="button" class="toggle-pw" (click)="togglePassword()" tabindex="-1">
+            {{ showPassword() ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="login-error">{{ error() }}</div>
+      }
+
+      <button type="submit" class="btn btn-primary btn-full login-btn" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span> Verificando...
+        } @else {
+          Iniciar Sesión
+        }
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider" style="margin: 20px 0"></div>
+
+    <!-- Test Accounts Panel -->
+    <div class="test-accounts-panel">
+      <p class="test-accounts-title">Cuentas de prueba:</p>
+      <div class="test-accounts-list">
+        @for (acct of accounts; track acct.email) {
+          <div class="test-account-row" (click)="fillAccount(acct.email, acct.password)">
+            <div class="ta-role-col">
+              <span class="ta-role">{{ acct.roleLabel }}</span>
+              <span class="ta-name">{{ acct.name }}</span>
+            </div>
+            <div class="ta-creds-col">
+              <span class="ta-email">{{ acct.email }}</span>
+              <span class="ta-pass">/ {{ acct.password }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

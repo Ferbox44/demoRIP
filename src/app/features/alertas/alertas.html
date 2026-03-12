@@ -1,0 +1,36 @@
+<div class="page-wrapper">
+  <div class="page-content">
+
+    <div class="flex items-center justify-between mb-lg">
+      <div>
+        <h1 class="page-title">Alertas del Sistema</h1>
+        <p class="text-secondary text-sm mt-sm">Notificaciones y avisos de inventario</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" (click)="markAllRead()">✓ Marcar todas como leídas</button>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      @for (a of alerts(); track a.id) {
+        <div class="alert-row" [class.unread]="!a.read" (click)="markRead(a.id)">
+          <div class="alert-icon-wrap" [class]="iconClass(a.type)">{{ iconFor(a.type) }}</div>
+          <div style="flex:1;min-width:0">
+            <p class="alert-message" [class.fw-600]="!a.read">{{ a.message }}</p>
+            <p class="alert-detail">{{ a.detail }}</p>
+            <p class="alert-time">{{ a.timestamp }}</p>
+          </div>
+          @if (!a.read) {
+            <span class="unread-dot"></span>
+          }
+        </div>
+      }
+      @if (alerts().length === 0) {
+        <div class="empty-state" style="padding:48px">
+          <div class="empty-state-icon">🔔</div>
+          <p class="empty-state-title">Sin alertas</p>
+          <p class="empty-state-desc">Todo está en orden por ahora.</p>
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
